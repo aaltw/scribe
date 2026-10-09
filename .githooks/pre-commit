@@ -1,0 +1,10 @@
+#!/bin/sh
+# Personal data never enters git (ADR 0001): refuse staged paths under meetings/ or .scribe/ (Voice profiles) or with an
+# audio/video or embedding (.npy, .npz) extension, case-insensitive.
+bad=$(git diff --cached --name-only --diff-filter=ACMR | grep -iE '^(meetings|\.scribe)/|\.(wav|mp3|m4a|flac|ogg|mp4|mov|mkv|npy|npz)$')
+if [ -n "$bad" ]; then
+  echo "pre-commit: refusing to commit personal data (ADR 0001):" >&2
+  echo "$bad" | sed 's/^/  /' >&2
+  echo "Unstage with: git restore --staged <path>" >&2
+  exit 1
+fi

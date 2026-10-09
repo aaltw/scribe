@@ -1,0 +1,11 @@
+{
+  "name": "scribe",
+  "owner": { "name": "Aalt Westhuis" },
+  "plugins": [
+    {
+      "name": "scribe",
+      "source": "./",
+      "description": "Local meeting transcription with speaker naming, as the /transcribe skill."
+    }
+  ]
+}

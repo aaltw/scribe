@@ -1,0 +1,20 @@
+# Personal data: never commit Recordings or Transcripts (ADR 0001)
+meetings/
+*.mp4
+*.mov
+*.mkv
+*.m4a
+*.wav
+*.mp3
+*.flac
+*.ogg
+.venv/
+__pycache__/
+.mypy_cache/
+.ruff_cache/
+.pytest_cache/
+*.egg-info/
+# Local config and Voice profiles (biometric data)
+.scribe/
+*.npy
+*.npz

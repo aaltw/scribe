@@ -1,0 +1,10 @@
+{
+  "name": "scribe",
+  "version": "0.1.0",
+  "description": "/transcribe: turn a meeting recording into a speaker-labelled transcript, name the speakers with voice-profile suggestions, and write a clean transcript, summary and minutes. Runs locally.",
+  "author": { "name": "Aalt Westhuis" },
+  "homepage": "https://github.com/aaltw/scribe",
+  "repository": "https://github.com/aaltw/scribe",
+  "license": "MIT",
+  "keywords": ["transcription", "diarization", "meetings"]
+}

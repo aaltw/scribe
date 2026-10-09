@@ -1,0 +1,34 @@
+{
+  "version": 1,
+  "models": {
+    "diarize": "pyannote-community-1",
+    "transcribe": "parakeet-tdt-0.6b-v3"
+  },
+  "speakers": [
+    "Speaker 1",
+    "Speaker 2"
+  ],
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 4.2,
+      "speaker": "Speaker 1",
+      "participant": "Sam",
+      "text": "Welkom allemaal, shall we start?"
+    },
+    {
+      "start": 4.25,
+      "end": 9.8,
+      "speaker": "Speaker 2",
+      "participant": null,
+      "text": "Ja, prima. Let's begin with the demo."
+    },
+    {
+      "start": 3725.0,
+      "end": 3731.5,
+      "speaker": "Speaker 1",
+      "participant": "Sam",
+      "text": "Tot slot: één actiepunt."
+    }
+  ]
+}
