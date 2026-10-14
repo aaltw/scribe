@@ -71,9 +71,41 @@ jobs:
       - uses: actions/checkout@v7
         with:
           fetch-depth: 0
-      - uses: gitleaks/gitleaks-action@v2
+      # Pinned betterleaks CLI (MIT, from the gitleaks author), not gitleaks/gitleaks-action@v2.
+      # Bump version and all four sha256s together, from the release's checksums.txt.
+      - name: betterleaks (pinned CLI)
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          # gitleaks-action downloads its binary to a fixed os.tmpdir()/gitleaks.tmp path and
-          # leaves it behind; runner.temp is unique per job, so a leftover never collides.
+          BETTERLEAKS_VERSION: 1.9.0
+          EVENT_NAME: ${{ github.event_name }}
+          PR_BASE: ${{ github.event.pull_request.base.sha }}
+          PR_HEAD: ${{ github.event.pull_request.head.sha }}
+          PUSH_BEFORE: ${{ github.event.before }}
+          PUSH_SHA: ${{ github.sha }}
+          # runner.temp is unique per job and emptied at job end, so nothing lands in a shared tmp.
           TMPDIR: ${{ runner.temp }}
+        run: |
+          case "$RUNNER_OS-$RUNNER_ARCH" in
+            Linux-X64)   plat=linux_x64    sum=f8b185a39ffcece2a1ca82bf3a4e7435cd81963ffd16b7a9128daf75f35f6de7 ;;
+            Linux-ARM64) plat=linux_arm64  sum=1d39116e0a58dc94574715e2aa12a2dbd5062f193eee3fec011fef6ba06bd13b ;;
+            macOS-X64)   plat=darwin_x64   sum=68dfd83458d9e7f90663daa7a81c7f944083b170dae82e4f5f8d0581ed519ef1 ;;
+            macOS-ARM64) plat=darwin_arm64 sum=83dd7eaab13d44a1e8e347a17064cdef153a1478db473276d41b38d55613d3f2 ;;
+            *) echo "::error::no pinned betterleaks for $RUNNER_OS-$RUNNER_ARCH"; exit 1 ;;
+          esac
+          dir="$RUNNER_TEMP/betterleaks" tgz="betterleaks_${BETTERLEAKS_VERSION}_${plat}.tar.gz"
+          mkdir -p "$dir"
+          curl -fsSL -o "$dir/$tgz" "https://github.com/betterleaks/betterleaks/releases/download/v${BETTERLEAKS_VERSION}/$tgz"
+          echo "$sum  $dir/$tgz" | shasum -a 256 -c -
+          tar -xzf "$dir/$tgz" -C "$dir" betterleaks
+          # Range: a PR scans base..head. A push scans before..sha. A new branch (before is all
+          # zeros) or a force push (before is no longer in the checkout) scans all history
+          # reachable from the pushed sha: a superset, and the repo is small.
+          if [ "$EVENT_NAME" = pull_request ]; then
+            range="$PR_BASE..$PR_HEAD"
+          elif [[ "$PUSH_BEFORE" =~ ^0+$ ]] || ! git cat-file -e "$PUSH_BEFORE^{commit}" 2> /dev/null; then
+            range="$PUSH_SHA"
+          else
+            range="$PUSH_BEFORE..$PUSH_SHA"
+          fi
+          echo "betterleaks scans: $range"
+          # A finding exits 1 (default --exit-code), which fails the job.
+          "$dir/betterleaks" git --redact --verbose --log-opts="$range" .
