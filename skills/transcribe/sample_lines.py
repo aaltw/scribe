@@ -27,6 +27,13 @@ def main() -> int:
     except (OSError, TranscriptError) as error:
         print(f"sample_lines: error: {error}", file=sys.stderr)
         return 1
+    except UnicodeDecodeError:
+        print(
+            "sample_lines: error: cannot read transcript.json as UTF-8 text; "
+            "restore it from a backup or run scribe on the Recording again",
+            file=sys.stderr,
+        )
+        return 1
     for speaker in transcript.speakers:
         segments = [s for s in transcript.segments if s.speaker == speaker]
         seconds = talk_time(segments)

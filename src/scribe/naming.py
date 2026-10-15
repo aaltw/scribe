@@ -79,6 +79,11 @@ def name_meeting(folder: Path, names: dict[str, str]) -> Named:
         original = parse_json(json_path.read_text(encoding="utf-8"))
     except OSError as error:
         raise NamingError(f"cannot read {json_path}: {error.strerror or error}") from error
+    except UnicodeDecodeError as error:
+        raise NamingError(
+            f"cannot read {json_path} as UTF-8 text; restore it from a backup "
+            "or run scribe on the Recording again"
+        ) from error
     except TranscriptError as error:
         raise NamingError(f"{json_path}: {error}") from error
 
